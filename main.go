@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os/exec"
 	"runtime"
 	"time"
 
@@ -41,15 +42,23 @@ func main() {
 			state := -1
 			timer := defaultWorkTime
 			countdown := false
+			played := true
 			for {
 				select {
 				case <-time.After(1 * time.Second):
+					if state%2 == 0 && !played {
+						go runTopframeBin()
+						played = true
+					}
+
 					if timer > 0 && countdown {
 						timer = timer - 1
 					}
+
 					if timer <= 0 && state%2 == 1 {
 						state = (state + 1) % 4
 					}
+
 				case <-nextClicked:
 					state = (state + 1) % 4
 					timer = map[int]int{
@@ -58,11 +67,14 @@ func main() {
 						2: 0,
 						3: defaultBreakTime, // break timer
 					}[state]
+
 					if state%2 == 1 {
 						countdown = true
+						played = false
 					} else {
 						countdown = false
 					}
+
 				}
 				labels := map[int]string{
 					0: "▶️ Ready %02d:%02d",
@@ -98,4 +110,8 @@ func main() {
 
 	})
 	app.Run()
+}
+
+func runTopframeBin() error {
+	return exec.Command("topframe").Run()
 }
