@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,9 +18,22 @@ const (
 	defaultWorkTime  = 2400
 	defaultBreakTime = 600
 	defaultPort      = 58080
+	VERSION          = "v0.0.1"
 )
 
+var version bool
+
+func init() {
+	flag.BoolVar(&version, "v", false, "print the binary version")
+}
+
 func main() {
+	flag.Parse()
+
+	if version {
+		fmt.Println(VERSION)
+		return
+	}
 	runtime.LockOSThread()
 
 	app := cocoa.NSApp_WithDidLaunch(func(n objc.Object) {
@@ -47,7 +61,12 @@ func main() {
 				select {
 				case <-time.After(1 * time.Second):
 					if state%2 == 0 && !played {
-						go runTopframeBin()
+						go func() {
+							if err := runTopframeBin(); err != nil {
+								fmt.Println("failed to run topframe, err: ", err)
+							}
+						}()
+
 						played = true
 					}
 
@@ -113,5 +132,5 @@ func main() {
 }
 
 func runTopframeBin() error {
-	return exec.Command("topframe").Run()
+	return exec.Command("/usr/local/bin/topframe").Run()
 }
