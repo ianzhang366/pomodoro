@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"runtime"
 	"time"
@@ -17,10 +18,11 @@ import (
 )
 
 const (
-	defaultWorkTime  = 2400
-	defaultBreakTime = 600
-	defaultPort      = 58080
-	VERSION          = "v0.0.2"
+	defaultWorkTime               = 2400
+	defaultBreakTime              = 600
+	defaultPort                   = 58080
+	VERSION                       = "v0.0.2"
+	defaultTopFrameBinaryLocation = "/opt/homebrew/bin/topframe"
 )
 
 var version bool
@@ -66,11 +68,10 @@ func launched(app appkit.Application, delegate *appkit.ApplicationDelegate) {
 		state := -1
 		timer := 1500
 		countdown := false
-		played := false
+		played := true
 		for {
 			select {
 			case <-time.After(1 * time.Second):
-				fmt.Println(state)
 				if state%2 == 0 && !played {
 					go func() {
 						if err := runTopframeBin(); err != nil {
@@ -133,5 +134,10 @@ func launched(app appkit.Application, delegate *appkit.ApplicationDelegate) {
 }
 
 func runTopframeBin() error {
-	return exec.Command("/opt/homebrew/bin/topframe").Run()
+	topFrameBinaryLocation := os.Getenv("TOPFRAME")
+	if topFrameBinaryLocation == "" {
+		topFrameBinaryLocation = defaultTopFrameBinaryLocation
+	}
+
+	return exec.Command(topFrameBinaryLocation).Run()
 }
