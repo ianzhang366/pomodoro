@@ -1,6 +1,6 @@
 # pomodoro
 
-This is a minior mutation of [pomodoro](https://github.com/progrium/macdriver/blob/main/examples/pomodoro), the modification includes:
+This is a minior mutation of [pomodoro](https://github.com/progrium/macdriver/tree/main/macos/_examples/pomodoro), the modification includes:
 1. change the work time to 40 minutes
 2. change the break time to 10 minutes
 3. made `localhost:58080/next` for trigger `nextClick` action, this would allow me to have some hotkey to cycle through timers.
